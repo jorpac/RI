@@ -14,7 +14,7 @@ int main (int argc , char **argv) {
   ros::init(argc ,argv ,"assignement_b_node");
   ros::NodeHandle nh;
   // Create a publisher object .
-  ros::Publisher pub = nh.advertise <geometry_msgs::Twist >("turtlebot", 1000);
+  ros::Publisher pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
   // Seed the random number generator .
   srand(time(0));
   // Loop at 2Hz until the node is shut down .
@@ -23,11 +23,12 @@ int main (int argc , char **argv) {
   while (ros::ok()){
   // Create and fill in the message. The other four
   // fields, which are ignored by turt lesim , defaultto 0.
+  ros::spinOnce();
   geometry_msgs::Twist msg;
 
   double(rand())/double(RAND_MAX);
 
-  msg.linear.x = double(i*(i/i-0.1));
+  msg.linear.x = 10000;
   msg.angular.z = 100;
   i = i + 0.1;
   // Pub lish the message .
