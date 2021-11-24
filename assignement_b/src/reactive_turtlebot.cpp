@@ -8,34 +8,49 @@
 #include <sstream>
 #include <bits/stdc++.h>
 #include <math.h>
+#define PI 3.14159265358979323846
+
+class MoveAroundB {
+  public:
+    ros::Subscriber sub;
+    ros::Publisher pub;
+    ros::NodeHandle nh;
+    geometry_msgs::Twist msg_;
+    
+    void abc() {
+      pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
+      sub = nh.subscribe<sensor_msgs::LaserScan>("/scan", 1, &MoveAroundB::counterCallback, this);
+      ros::spin();
+    }
+  
+  void counterCallback(const sensor_msgs::LaserScan::ConstPtr& msg){
+    float angle = 0.0;
+	  float comp_distance = 999999999;
+    for (unsigned int i = 0; i < msg->ranges.size(); i++) {
+      float distance = msg->ranges[i];
+      float sensorAngle = (msg->angle_min * (180 / PI)) + (msg->angle_increment * (180 / PI)) * i;
+      if (distance < comp_distance) {
+        angle = sensorAngle;
+        comp_distance = distance;
+      }
+    }
+    msg_.linear.x = 0.2;
+    msg_.angular.z = 0;
+    float alpha = 90.0 - abs(angle);
+
+    if (comp_distance <= msg->range_max)
+		//theory here: https://www.seas.upenn.edu/sunfest/docs/papers/12-bayer.pdf adapted from formula at page 6
+		msg_.angular.z = (-20 * (sin(alpha * (PI / 180)) - (comp_distance - 0.4))) * 0.1;
+    pub.publish(msg_);
+  }
+};
 
 int main (int argc , char **argv) {
   // Initialize the ROS system and become a node .
   ros::init(argc ,argv ,"assignement_b_node");
-  ros::NodeHandle nh;
-  // Create a publisher object .
-  ros::Publisher pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
-  // Seed the random number generator .
-  srand(time(0));
-  // Loop at 2Hz until the node is shut down .
-  double i = 0.2;
-  ros::Rate rate(2);
-  while (ros::ok()){
-  // Create and fill in the message. The other four
-  // fields, which are ignored by turt lesim , defaultto 0.
-  ros::spinOnce();
-  geometry_msgs::Twist msg;
 
-  double(rand())/double(RAND_MAX);
+  MoveAroundB move;
+  move.abc();
+  ros::spin();
 
-  msg.linear.x = 10000;
-  msg.angular.z = 100;
-  i = i + 0.1;
-  // Pub lish the message .
-  pub.publish(msg);
-  // Send a message to rosout with the d e t a i l s .
-  ROS_INFO_STREAM( " Sending ␣random␣velocity␣command : " << "␣linear=" << msg.linear.x << "␣angular=" << msg.angular.z);
-  // Wait un t i l i t ' s time for another i t e ra t ion .
-  rate.sleep();
-  }
 }

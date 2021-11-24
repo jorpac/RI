@@ -7,12 +7,22 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
   std_msgs
+  geometry_msgs
 )
 
 link_directories(${GAZEBO_LIBRARY_DIRS})
 include_directories(${catkin_INCLUDE_DIRS})
 
-catkin_package()
+catkin_package(
+  INCLUDE_DIRS
+  LIBRARIES
+  CATKIN_DEPENDS
+    roscpp
+    std_msgs
+    geometry_msgs
+    sensor_msgs
+)
+
 
 add_executable(${PROJECT_NAME}_node src/reactive_turtlebot.cpp)
 
