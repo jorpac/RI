@@ -6,6 +6,7 @@ project(assignement_b)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
+  geometry_msgs
   std_msgs
 )
 
