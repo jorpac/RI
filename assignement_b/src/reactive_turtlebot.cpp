@@ -10,47 +10,56 @@
 #include <math.h>
 #define PI 3.14159265358979323846
 
+using geometry_msgs::Twist;
+using sensor_msgs::LaserScan;
+
 class MoveAroundB {
+  
   public:
     ros::Subscriber sub;
     ros::Publisher pub;
     ros::NodeHandle nh;
-    geometry_msgs::Twist msg_;
+    Twist cmd_msg;
     
     void abc() {
-      pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
-      sub = nh.subscribe<sensor_msgs::LaserScan>("/scan", 1, &MoveAroundB::counterCallback, this);
+      pub = nh.advertise<Twist>("/cmd_vel", 1);
+      sub = nh.subscribe<LaserScan>("/scan", 1, &MoveAroundB::counterCallback, this);
       ros::spin();
     }
   
-  void counterCallback(const sensor_msgs::LaserScan::ConstPtr& msg){
-    float angle = 0.0;
+  void counterCallback(const LaserScan::ConstPtr& scan_msg){
+
 	  float comp_distance = 999999999;
-    for (unsigned int i = 0; i < msg->ranges.size(); i++) {
-      float distance = msg->ranges[i];
-      float sensorAngle = (msg->angle_min * (180 / PI)) + (msg->angle_increment * (180 / PI)) * i;
+    unsigned int min_range_index = 0;
+
+    for (unsigned int i = 0; i < scan_msg->ranges.size(); i++) {
+
+      float distance = scan_msg->ranges[i];
+
       if (distance < comp_distance) {
-        angle = sensorAngle;
+        min_range_index = i;
         comp_distance = distance;
       }
     }
-    msg_.linear.x = 0.2;
-    msg_.angular.z = 0;
+
+    cmd_msg.linear.x = 0.2;
+    cmd_msg.angular.z = 0;
+    float angle = (scan_msg->angle_min * (180 / PI)) + (scan_msg->angle_increment * (180 / PI)) * min_range_index;
     float alpha = 90.0 - abs(angle);
 
-    if (comp_distance <= msg->range_max)
-		//theory here: https://www.seas.upenn.edu/sunfest/docs/papers/12-bayer.pdf adapted from formula at page 6
-		msg_.angular.z = (-20 * (sin(alpha * (PI / 180)) - (comp_distance - 0.4))) * 0.1;
-    pub.publish(msg_);
+    if (comp_distance <= scan_msg->range_max)
+      cmd_msg.angular.z = (-20 * (sin(alpha * (PI / 180)) - (comp_distance - 0.4))) * 0.1;
+    
+    pub.publish(cmd_msg);
   }
 };
 
 int main (int argc , char **argv) {
+
   // Initialize the ROS system and become a node .
   ros::init(argc ,argv ,"assignement_b_node");
 
   MoveAroundB move;
   move.abc();
   ros::spin();
-
 }
