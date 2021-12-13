@@ -1,0 +1,13 @@
+global_costmap:
+  plugins:
+    - {name: map, type: 'costmap_2d::StaticLayer'}
+    #- {name: laser_obstacles, type: 'costmap_2d::ObstacleLayer'}
+    - {name: rgdb_obstacles, type: 'spatio_temporal_voxel_layer/SpatioTemporalVoxelLayer'}
+    - {name: inflation, type: 'costmap_2d::InflationLayer'}
+
+  map:
+    subscribe_to_updates: true
+
+  inflation:
+    inflation_radius: 1
+    cost_scaling_factor: 5

@@ -1,0 +1,18 @@
+{
+	"name": "Intellwheels Navigation",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"containerEnv": {
+		"DISPLAY": "${localEnv:DISPLAY}",
+		"QT_X11_NO_MITSHM": "1",
+		"NVIDIA_DRIVER_CAPABILITIES": "all",
+		"NVIDIA_VISIBLE_DEVICES": "all"
+	},
+	"mounts": [ "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind" ],
+	"runArgs": [
+		"--hostname=container",
+		"--runtime=nvidia",
+		"--add-host=jeeves:172.16.60.1"
+	]
+}
