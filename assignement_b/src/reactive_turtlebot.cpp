@@ -14,7 +14,7 @@ using geometry_msgs::Twist;
 using sensor_msgs::LaserScan;
 
 class MoveAroundB {
-  
+
   public:
     ros::Subscriber sub;
     ros::Publisher pub;
@@ -42,13 +42,13 @@ class MoveAroundB {
       }
     }
 
-    cmd_msg.linear.x = 0.2;
+    cmd_msg.linear.x = 0.4;
     cmd_msg.angular.z = 0;
     float angle = (scan_msg->angle_min * (180 / PI)) + (scan_msg->angle_increment * (180 / PI)) * min_range_index;
     float alpha = 90.0 - abs(angle);
 
     if (comp_distance <= scan_msg->range_max)
-      cmd_msg.angular.z = (-20 * (sin(alpha * (PI / 180)) - (comp_distance - 0.4))) * 0.1;
+      cmd_msg.angular.z = (-40 * (sin(alpha * (PI / 180)) - (comp_distance - 0.4))) * 0.1;
     
     pub.publish(cmd_msg);
   }
