@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-from distutils import cmd
 import math
 import rospy
+import time
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import Twist
+from std_msgs.msg import String
 
-global msg
 class LeadingChair(object):
     def __init__(self, pub):
         self.pub = pub
@@ -32,27 +32,34 @@ class FollowerChair(object):
 #     rospy.loginfo()
 
 def main():
+    pub1 = rospy.Publisher("/robot1/move_base_simple/goal", PoseStamped, queue_size=10)
+    pub2 = rospy.Publisher("/robot2/cmd_vel/", Twist, queue_size=10)
+    pub3 = rospy.Publisher('chatter', String, queue_size=10)
     rospy.init_node('move_chairs')
-    #leadPublisher = rospy.Publisher("/robot1/move_base_simple/goal", PoseStamped, queue_size=10)
-    pub = rospy.Publisher("/robot2/cmd_vel/", Twist, queue_size=10)
 
-    # c1 = LeadingChair(leadPublisher)
-    # c2 = FollowerChair(followPublisher)
-
-    # rospy.Subscriber("/robot2/cmd_vel", print)
-    rospy.spin()
+    rate = rospy.Rate(10)
 
     cmdMsg = Twist()
-    cmdMsg.linear.x = 10
-    pub.publish(cmdMsg)
+    # cmdMsg.linear.y = -2
+    goalMsg = PoseStamped()
+    goalMsg.header.frame_id = "map"
+    goalMsg.pose.position.x = 30
+    goalMsg.pose.position.y = 30
+    goalMsg.pose.orientation = [0, 1, 0, 0]
+    goalMsg.header.stamp = rospy.Time.now()
     # Save current time and set publish rate at 10 Hz
-    rate = rospy.Rate(1)
+    pub2.publish(cmdMsg)
 
-    # For the next 6 seconds publish cmd_vel move commands to Turtlesim
     while not rospy.is_shutdown():
-        pub.publish(cmdMsg)
+        hello_str = "hello world %s" % rospy.get_time()
+        rospy.loginfo(hello_str)
+        # pub2.publish(cmdMsg)
+        pub1.publish(goalMsg)
+        pub3.publish(hello_str)
         rate.sleep() 
     # c1.goToGoal((1, 2))
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except rospy.ROSInterruptException: pass
