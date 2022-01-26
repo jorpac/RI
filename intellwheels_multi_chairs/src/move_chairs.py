@@ -38,7 +38,7 @@ class FollowerChair(object):
         alpha = 90.0 - abs(angle)
 
         if (comp_distance <= scanMsg.range_max):
-            newMoveMsg.angular.z = (-20 * (math.sin(alpha * (math.pi / 180)) - (comp_distance - 0.2))) * 0.1
+            newMoveMsg.angular.z = (-20 * (math.sin(alpha * (math.pi / 180)) - (comp_distance +0.1 ))) * 0.1
 
         # alter according to how best move the chair next to follow the one in front/to the side based on scanMsg
         self.pub.publish(newMoveMsg)
