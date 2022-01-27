@@ -21,7 +21,7 @@ class FollowerChair(object):
         self.pub = pub
 
     def follow(self, scanMsg):
-        rospy.loginfo('{} \n was the msg received'.format(scanMsg))
+        rospy.loginfo('{} \n was the msg received'.format(scanMsg.ranges.size()))
         newMoveMsg = Twist()
         comp_distance = 999999999
         min_range_index = 0
@@ -54,7 +54,13 @@ def main():
     rospy.Subscriber("/robot2/right_front_rplidar_scan", LaserScan, c2.follow)
     rospy.spin()
 
-    c1.goToGoal((1, 2))
+    while not rospy.is_shutdown():
+        hello_str = "hello world %s" % rospy.get_time()
+        rospy.loginfo(hello_str)
+        # pub2.publish(cmdMsg)
+        pub1.publish(goalMsg)
+        pub3.publish(hello_str)
+        rate.sleep() 
 
 if __name__ == '__main__':
     main()

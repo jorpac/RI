@@ -7,6 +7,7 @@ from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import Twist
 from std_msgs.msg import String
+from tf.transformations import quaternion_from_euler
 
 class LeadingChair(object):
     def __init__(self, pub):
@@ -45,7 +46,11 @@ def main():
     goalMsg.header.frame_id = "map"
     goalMsg.pose.position.x = 30
     goalMsg.pose.position.y = 30
-    goalMsg.pose.orientation = [0, 1, 0, 0]
+    # goalMsg.pose.orientation = quaternion_from_euler(1.5707, 0, -1.5707)
+    goalMsg.pose.orientation.x = 0
+    goalMsg.pose.orientation.y = 0
+    goalMsg.pose.orientation.z = 0
+    goalMsg.pose.orientation.w = 1
     goalMsg.header.stamp = rospy.Time.now()
     # Save current time and set publish rate at 10 Hz
     pub2.publish(cmdMsg)
